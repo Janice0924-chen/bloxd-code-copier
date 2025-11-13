@@ -1,0 +1,219 @@
+var lastBroadcastTime = 0;
+let isStarted = false;
+let currentIndex = 0;
+let glassBlocksToRemove = [];
+
+// 38
+let blocks1 = [
+    { name: "Block of Quartz", position: [342, 43, 565] },
+    { name: "Pine Log", position: [339, 44, 563] },
+    { name: "Pine Log", position: [339, 45, 563] },
+    { name: "Pine Log", position: [339, 46, 563] },
+    { name: "Maple Wood Planks", position: [337, 44, 566] },
+    { name: "Maple Wood Planks", position: [336, 44, 566] },
+    { name: "Maple Wood Planks", position: [335, 44, 566] },
+    { name: "Maple Wood Planks", position: [335, 45, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "White Glass", position: [334, 44, 566] },
+    { name: "White Glass", position: [333, 44, 566] },
+    { name: "White Glass", position: [332, 44, 566] },
+    { name: "White Glass", position: [332, 44, 565] },
+    { name: "White Glass", position: [332, 44, 564] },
+    { name: "White Glass", position: [332, 44, 563] },
+    { name: "Cherry Wood Planks", position: [332, 45, 563] },
+    { name: "Cherry Wood Planks", position: [332, 46, 563] },
+    { name: "Pine Wood Planks", position: [330, 45, 561] },
+    { name: "Pine Wood Planks", position: [330, 45, 560] },
+    { name: "Pine Wood Planks", position: [330, 45, 559] },
+    { name: "Pine Wood Planks", position: [330, 46, 559] },
+    { name: "Pink Glass", position: [330, 45, 558] },
+    { name: "Pink Glass", position: [330, 45, 557] },
+    { name: "Pink Glass", position: [329, 45, 557] },
+    { name: "Pink Glass", position: [328, 45, 557] },
+    { name: "Pink Glass", position: [327, 45, 557] },
+	{ name: "Pine Wood Planks", position: [326, 45, 557] },
+    { name: "Pine Wood Planks", position: [326, 46, 557] },
+    { name: "MOB_SPAWN", position: [326, 46, 557] }, 
+    { name: "Obsidian", position: [322, 45, 557] },
+    { name: "Obsidian", position: [322, 46, 557] },
+    { name: "Obsidian", position: [322, 47, 557] },
+    { name: "Obsidian", position: [322, 48, 557] },
+    { name: "Obsidian", position: [322, 49, 557] },
+    { name: "Obsidian", position: [322, 49, 558] },
+    { name: "Obsidian", position: [322, 49, 559] },
+    { name: "0", position: [342, 43, 566] },
+];
+
+// 38
+let blocks2 = [
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [343, 43, 566] },
+    { name: "0", position: [344, 43, 566] }, 
+    { name: "0", position: [344, 43, 566] }, 
+    { name: "0", position: [344, 43, 566] }, 
+    { name: "0", position: [344, 43, 566] }, 
+    { name: "0", position: [344, 43, 566] }, 
+    { name: "0", position: [344, 43, 566] },
+    { name: "Air", position: [337, 44, 566] },
+    { name: "Air", position: [336, 44, 566] },
+    { name: "White Glass", position: [335, 44, 565] }, 
+    { name: "White Glass", position: [335, 44, 564] }, 
+    { name: "White Glass", position: [335, 44, 563] }, 
+    { name: "White Glass", position: [334, 44, 563] },
+    { name: "White Glass", position: [333, 44, 563] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "Air", position: [330, 45, 561] },
+    { name: "Air", position: [330, 45, 560] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "Obsidian", position: [322, 49, 560] },
+    { name: "Obsidian", position: [322, 48, 560] },
+    { name: "Obsidian", position: [322, 47, 560] },
+    { name: "Obsidian", position: [322, 46, 560] },
+    { name: "Obsidian", position: [322, 45, 560] },
+    { name: "Obsidian", position: [322, 45, 559] },
+    { name: "Obsidian", position: [322, 45, 558] },
+    { name: "0", position: [342, 43, 566] },
+];
+
+onPlayerChat = (playerId,chatMessage,channelName) => {
+    namee = api.getEntityName(playerId)
+    if (namee === "PhillixJanice_YT" && chatMessage === "#1") {
+        clearAllBlocks();
+        resetSequence();
+        cleanMob()
+        api.setBlockRect([322,46,558],[322,48,559],"Air");
+        api.setBlock([339, 44, 564],"Air");
+        api.setBlock([323, 45, 558],"Air");
+    }
+    if (namee === "PhillixJanice_YT" && chatMessage === "#2") {
+        resetSequence();
+        cleanMob()
+        api.setBlock([339, 44, 564],"Air");
+        api.setBlock([323, 45, 558],"Air");
+    }
+	if (chatMessage === "#clear") {
+		api.clearInventory(playerId)
+	}
+}
+
+function onBlockStand(playerId, x, y, z, stoodOnBlockName) {
+    if (stoodOnBlockName === "Block of Moonstone" && x === 346 && z === 565 && y === 42 && !isStarted) {
+        api.setItemSlot(playerId, 1, "Cherry Wood Planks", 1);
+        isStarted = true;
+        currentIndex = 0;
+        lastBroadcastTime = Date.now();
+    }
+    if (stoodOnBlockName === "Cherry Wood Planks" && y === 46) {
+        api.setItemSlot(playerId, 1, "Obsidian", 1);
+    } 
+}
+
+function onPlayerJoin (playerId) {
+    api.setWalkThroughType(playerId,"2041",false)
+}
+
+function tick() {
+    const currentTime = Date.now();
+    const maxLength = Math.max(blocks1.length, blocks2.length);
+    
+    for (let i = glassBlocksToRemove.length - 1; i >= 0; i--) {
+        const glassBlock = glassBlocksToRemove[i];
+        if (currentTime - glassBlock.placeTime >= 300) {
+            api.setBlock(glassBlock.position, "Air");
+            glassBlocksToRemove.splice(i, 1); 
+        }
+    }
+    
+    if (!isStarted || currentIndex >= maxLength) return;
+     
+    if (currentTime - lastBroadcastTime >= 100) {
+        if (currentIndex < blocks1.length && blocks1[currentIndex].name !== "0") {
+            const block = blocks1[currentIndex];
+            
+            if (block.name === "MOB_SPAWN") {
+                const spawnX = block.position[0] + 0.5;
+                const spawnY = block.position[1] + 1;
+                const spawnZ = block.position[2] + 0.5;
+                api.attemptSpawnMob("Frost Zombie", spawnX, spawnY, spawnZ);
+            } else {
+                api.setBlock(block.position, block.name);
+                
+                if (block.name === "White Glass" || block.name === "Pink Glass") {
+                    glassBlocksToRemove.push({
+                        position: block.position,
+                        placeTime: currentTime
+                    });
+                }
+            }
+        }
+        
+        if (currentIndex < blocks2.length && blocks2[currentIndex].name !== "0") {
+            const block = blocks2[currentIndex];
+            
+            if (block.name === "MOB_SPAWN") {
+                const spawnX = block.position[0] + 0.5;
+                const spawnY = block.position[1] + 1;
+                const spawnZ = block.position[2] + 0.5;
+                api.attemptSpawnMob("Frost Zombie", spawnX, spawnY, spawnZ);
+            } else {
+                api.setBlock(block.position, block.name);
+                
+                if (block.name === "White Glass" || block.name === "Pink Glass") {
+                    glassBlocksToRemove.push({
+                        position: block.position,
+                        placeTime: currentTime
+                    });
+                }
+            }
+        }
+        
+        currentIndex++;
+        
+        if (currentIndex >= maxLength) {
+            api.setBlockRect([322,46,558],[322,48,559],"2041");
+        }
+        
+        lastBroadcastTime = currentTime;
+    }
+}
+
+function clearAllBlocks() {
+    for (let i = 0; i < blocks1.length; i++) {
+        if (blocks1[i].name !== "0" && blocks1[i].name !== "MOB_SPAWN") {
+            api.setBlock(blocks1[i].position, "Air");
+        }
+    }
+    
+    for (let i = 0; i < blocks2.length; i++) {
+        if (blocks2[i].name !== "0" && blocks2[i].name !== "MOB_SPAWN") {
+            api.setBlock(blocks2[i].position, "Air");
+        }
+    }
+    
+    glassBlocksToRemove = [];
+}
+
+function resetSequence() {
+    isStarted = false;
+    currentIndex = 0;
+    lastBroadcastTime = 0;
+}
+
+function cleanMob() {
+    let mobId=api.getMobIds()
+    for (i=0;i<mobId.length;i++){
+        api.despawnMob(mobId[i])
+    }
+}

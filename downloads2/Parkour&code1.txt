@@ -1,0 +1,240 @@
+var lastBroadcastTime = 0;
+let isStarted = false;
+let currentIndex = 0;
+let glassBlocksToRemove = [];
+ 
+// 61
+let leftBlocks = [
+    { name: "Lime Wool", position: [300, 1, 299] },
+    { name: "Glass", position: [301, 1, 299] },
+    { name: "Glass", position: [301, 1, 300] },
+    { name: "Glass", position: [302, 1, 300] },
+    { name: "Glass", position: [303, 1, 300] },
+    { name: "Yellow Wool", position: [304, 1, 300] },
+    { name: "Yellow Wool", position: [304, 2, 300] },
+    { name: "White Glass", position: [304, 1, 299] },
+    { name: "White Glass", position: [305, 1, 299] },
+    { name: "White Glass", position: [305, 1, 298] },
+    { name: "White Glass", position: [305, 1, 297] },
+    { name: "Lime Wool", position: [305, 1, 296] },
+    { name: "Lime Wool", position: [305, 2, 296] },
+    { name: "Lime Wool", position: [305, 3, 296] }, 
+    { name: "0", position: [305, 2, 295] },
+    { name: "Yellow Wool", position: [302, 1, 298] },
+    { name: "Yellow Wool", position: [302, 2, 298] },
+    { name: "Yellow Wool", position: [302, 3, 298] },
+    { name: "Yellow Wool", position: [302, 4, 298] },
+    { name: "Yellow Wool", position: [302, 5, 298] },
+	{ name: "Yellow Wool", position: [302, 4, 297] },
+	{ name: "0", position: [305, 2, 295] },
+    { name: "White Glass", position: [301, 5, 298] },
+    { name: "White Glass", position: [301, 5, 299] },
+    { name: "White Glass", position: [300, 5, 299] },
+    { name: "White Glass", position: [300, 5, 300] },
+    { name: "White Glass", position: [299, 5, 300] },
+    { name: "White Glass", position: [299, 5, 301] },
+    { name: "Glass", position: [302, 6, 298] },
+    { name: "Glass", position: [302, 7, 298] },
+    { name: "Glass", position: [302, 8, 298] },
+    { name: "Glass", position: [303, 8, 298] },
+    { name: "Glass", position: [303, 8, 299] },
+    { name: "Glass", position: [303, 8, 300] },
+    { name: "Yellow Wool", position: [303, 8, 301] },
+	{ name: "218", position: [302, 8, 301] },
+    { name: "RECTANGLE_SPAWN", position: [302, 8, 301] },
+	{ name: "Yellow Wool", position: [308, 8, 301] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "Air", position: [302, 8, 298] },
+	{ name: "Air", position: [301, 8, 298] },
+	{ name: "Air", position: [300, 8, 298] },
+	{ name: "Air", position: [299, 8, 298] },
+];
+
+// 61
+let rightBlocks = [
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [343, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [344, 43, 566] },
+    { name: "0", position: [342, 43, 566] },
+    { name: "0", position: [343, 43, 566] },
+    { name: "0", position: [344, 43, 566] }, 
+    { name: "Glass", position: [305, 2, 295] },
+    { name: "Glass", position: [304, 2, 295] },
+    { name: "Glass", position: [303, 2, 295] },
+    { name: "Glass", position: [303, 3, 295] },
+    { name: "Glass", position: [302, 3, 295] },
+    { name: "Glass", position: [302, 3, 296] },
+    { name: "Glass", position: [302, 4, 296] },
+    { name: "0", position: [302, 3, 298] },
+    { name: "Lime Wool", position: [298, 1, 301] },
+    { name: "Lime Wool", position: [298, 2, 301] }, 
+    { name: "Lime Wool", position: [298, 3, 301] },
+    { name: "Lime Wool", position: [298, 4, 301] },
+    { name: "Lime Wool", position: [298, 5, 301] },
+    { name: "Lime Wool", position: [298, 6, 301] },
+    { name: "0", position: [302, 6, 298] },
+    { name: "0", position: [302, 7, 298] },
+    { name: "0", position: [302, 8, 298] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+	{ name: "0", position: [344, 43, 566] },
+    { name: "Lime Wool", position: [306, 1, 298] },
+    { name: "Lime Wool", position: [306, 2, 298] },
+    { name: "Lime Wool", position: [306, 3, 298] },
+    { name: "Lime Wool", position: [306, 4, 298] },
+    { name: "Lime Wool", position: [306, 5, 298] },
+    { name: "Lime Wool", position: [306, 6, 298] },
+	{ name: "Lime Wool", position: [306, 7, 298] },
+    { name: "Lime Wool", position: [306, 8, 298] },
+	{ name: "Lime Wool", position: [306, 9, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	{ name: "0", position: [301, 8, 298] },
+	
+];
+
+function onBlockStand(playerId, x, y, z, stoodOnBlockName) {
+    if (stoodOnBlockName === "Grass Block" && x === 295 && y === 0 && z === 299 && !isStarted) {
+        api.setItemSlot(playerId, 0, "Block of Quartz", 1);
+        isStarted = true;
+        currentIndex = 0;
+        lastBroadcastTime = Date.now();
+    }
+}
+
+onPlayerChat = (playerId,chatMessage,channelName) => {
+    namee = api.getEntityName(playerId)
+    if (namee === "PhillixJanice_YT" && chatMessage === "#1") {
+        clearAllBlocks();
+        resetSequence();
+		api.setBlockRect([298,8,299],[296,8,297],"Air");
+		api.setBlockRect([296,9,298],[296,10,298],"Air");
+		api.setBlockRect([304,8,301],[307,10,301],"Air");
+		api.setBlockRect([300,8,298],[300,8,298],"Air");
+    }
+}
+
+function tick() {
+    const currentTime = Date.now();
+    const maxLength = Math.max(leftBlocks.length, rightBlocks.length);
+    
+    for (let i = glassBlocksToRemove.length - 1; i >= 0; i--) {
+        const glassBlock = glassBlocksToRemove[i];
+        if (currentTime - glassBlock.placeTime >= 300) {
+            api.setBlock(glassBlock.position, "Air");
+            glassBlocksToRemove.splice(i, 1); 
+        }
+    }
+    
+    if (!isStarted || currentIndex >= maxLength) return;
+     
+    if (currentTime - lastBroadcastTime >= 100) {
+        if (currentIndex < leftBlocks.length && leftBlocks[currentIndex].name !== "0") {
+            const block = leftBlocks[currentIndex];
+            
+            if (block.name === "RECTANGLE_SPAWN") {
+                api.setBlockRect([304,8,301],[307,10,301],"Yellow Wool");
+            }
+            else {
+                api.setBlock(block.position, block.name);
+               	
+                if (block.name === "White Glass" || block.name === "Glass") {
+                    glassBlocksToRemove.push({
+                        position: block.position,
+                        placeTime: currentTime
+                    });
+                }
+            }
+        }
+        
+        if (currentIndex < rightBlocks.length && rightBlocks[currentIndex].name !== "0") {
+            const block = rightBlocks[currentIndex];
+            
+            if (block.name === "RECTANGLE_SPAWN") {
+                api.setBlockRect([306,1,307],[306,1,309],"218");
+            }
+            else {
+                api.setBlock(block.position, block.name);
+                
+                if (block.name === "White Glass" || block.name === "Glass") {
+                    glassBlocksToRemove.push({
+                        position: block.position,
+                        placeTime: currentTime
+                    });
+                }
+            }
+        }
+        
+        currentIndex++;
+        
+        if (currentIndex >= maxLength) {
+			api.setBlockRect([298,8,299],[296,8,297],"Yellow Wool");
+			api.setBlockRect([296,9,298],[296,10,298],"Lime Wool");
+        }
+        
+        lastBroadcastTime = currentTime;
+    }
+}
+function clearAllBlocks() {
+    for (let i = 0; i < leftBlocks.length; i++) {
+        if (leftBlocks[i].name !== "0" && leftBlocks[i].name !== "RECTANGLE_SPAWN") {
+            api.setBlock(leftBlocks[i].position, "Air");
+        }
+    }
+    
+    for (let i = 0; i < rightBlocks.length; i++) {
+        if (rightBlocks[i].name !== "0" && rightBlocks[i].name !== "RECTANGLE_SPAWN") {
+            api.setBlock(rightBlocks[i].position, "Air");
+        }
+    }
+
+    glassBlocksToRemove = [];
+}
+
+function resetSequence() {
+    isStarted = false;
+    currentIndex = 0;
+    lastBroadcastTime = 0;
+}

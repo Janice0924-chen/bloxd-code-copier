@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLOXD Code Copier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .language-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        
+        .lang-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .lang-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .title-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .title-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #3498db;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .control-panel {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 2px dashed #dee2e6;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .controls-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .file-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .file-selector label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .file-selector select {
+            padding: 10px 15px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1rem;
+            min-width: 200px;
+            background: white;
+        }
+        
+        .btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .content-area {
+            margin-top: 30px;
+            padding: 25px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            min-height: 150px;
+            text-align: left;
+            transition: transform 0.3s ease;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+        }
+        
+        .content-area:hover {
+            transform: translateY(-5px);
+        }
+        
+        .content-area h3 {
+            color: #3498db;
+            margin-bottom: 20px;
+            text-align: center;
+            margin-left: 320px; /* 让标题在图片右侧居中 */
+        }
+        
+        .content-layout {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        
+        .screenshot {
+            flex-shrink: 0;
+            width: 280px;
+            height: 180px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .text-content {
+            flex: 1;
+        }
+        
+        .text-content p {
+            color: #7f8c8d;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.4s ease;
+        }
+        
+        .modal-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .close-btn:hover {
+            transform: scale(1.2);
+        }
+        
+        .code-container {
+            position: relative;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .code-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            user-select: text;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+        
+        .modal-footer {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: flex-end;
+            background: #f8f9fa;
+        }
+        
+        .copy-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+        }
+        
+        .copy-btn:hover {
+            background: #219955;
+        }
+        
+        .copy-btn i {
+            margin-right: 8px;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #2ecc71;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .error {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 1100;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .controls-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .file-selector {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+            
+            .file-selector select {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .language-switcher {
+                position: static;
+                margin-bottom: 15px;
+            }
+            
+            .content-layout {
+                flex-direction: column;
+            }
+            
+            .screenshot {
+                width: 100%;
+                height: 150px;
+            }
+            
+            .content-area h3 {
+                margin-left: 0;
+                text-align: center;
+            }
+            
+            .title-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .title-logo {
+                width: 40px;
+                height: 40px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+            
+            .control-panel {
+                padding: 15px;
+            }
+            
+            .content-area {
+                padding: 20px;
+                min-height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="language-switcher">
+            <button class="lang-btn" id="langToggle">EN</button>
+        </div>
+        
+        <div class="title-container">
+            <img src="img/bloxd-logo.png" alt="BLOXD Logo" class="title-logo">
+            <h1 id="title">BLOXD代码复制器</h1>
+        </div>
+        
+        <p class="description" id="description">
+            这是一个简单易用的工具，你可以选择文件后一键复制。
+        </p>
+        
+        <!-- 第一个虚线框 - 自动跑酷代码 -->
+        <div class="control-panel">
+            <div class="controls-row">
+                <div class="file-selector">
+                    <label for="fileSelect" id="fileSelectLabel">服务器代码：</label>
+                    <select id="fileSelect">
+                        <option value="" id="selectDefault">-- 请选择代码文件 --</option>
+                        <option value="downloads2/Parkour&code1.txt" id="file1">自动跑酷1</option>
+                        <option value="downloads2/Parkour&code2.txt" id="file2">自动跑酷2</option>
+                    </select>
+                </div>
+                
+                <button class="btn" id="showCodeBtn" disabled>
+                    <i>📄</i> <span id="viewCodeText">查看代码</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 第二个虚线框 - 其他类型代码 -->
+        <div class="control-panel">
+            <div class="controls-row">
+                <div class="file-selector">
+                    <label for="fileSelect2" id="fileSelectLabel2">命令方块代码：</label>
+                    <select id="fileSelect2">
+                        <option value="" id="selectDefault2">-- 暂时还没代码 --</option>
+                        <!-- 暂时没有选项，等您准备好文件后再添加 -->
+                        <!-- <option value="downloads2/CommandBlock1.txt" id="file3">命令方块代码1</option> -->
+                        <!-- <option value="downloads2/CommandBlock2.txt" id="file4">命令方块代码2</option> -->
+                    </select>
+                </div>
+                
+                <button class="btn" id="showCodeBtn2" disabled>
+                    <i>📄</i> <span id="viewCodeText2">查看代码</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="content-area">
+            <h3 id="projectTitle">项目说明</h3>
+            <div class="content-layout">
+                <div class="screenshot">
+                    <!-- 您可以在这里替换成真实的图片 -->
+                    <img src="img/pig.png" alt="项目截图" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;">
+                </div>
+                <div class="text-content">
+                    <p id="projectText1"><strong>•</strong> 代码用于Bloxd的命令方块和服务器代码里。<br>
+                    <strong>•</strong> 如果你需要可以直接复制，大部分代码都是我写的（不过用了AI-Deepseek）。 :3<br>
+                    <strong>•</strong> 我做这个网站的主要用途: 有些地方放不了太长的代码，所以就建了一个专门复制代码的工具。</p>
+                    <p><small id="projectText2">制作这个网站用了Deepseek :P</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="codeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">代码内容</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+            <div class="code-container">
+                <div class="code-display" id="codeDisplay">
+                    <div class="loading" id="loadingText">正在加载代码...</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="copy-btn" id="copyCodeBtn">
+                    <i>📋</i> <span id="copyCodeText">复制代码</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="copyNotification">
+        <span id="copySuccessText">代码已成功复制到剪贴板！</span>
+    </div>
+    
+    <div class="error" id="errorNotification">
+        <span id="errorText">加载文件时出错，请检查文件是否存在</span>
+    </div>
+
+    <script>
+        // 语言配置
+        const translations = {
+            'zh': {
+                'title': 'BLOXD代码复制器',
+                'description': '这是一个简单易用的工具，你可以选择文件后一键复制。',
+                'fileSelectLabel': '服务器代码：',
+                'fileSelectLabel2': '命令方块代码：',
+                'selectDefault': '-- 请选择代码文件 --',
+                'selectDefault2': '-- 暂时还没代码 --',
+                'file1': '自动跑酷1',
+                'file2': '自动跑酷2',
+                'file3': '其他代码1',
+                'file4': '其他代码2',
+                'viewCodeText': '查看代码',
+                'viewCodeText2': '查看代码',
+                'modalTitle': '代码内容',
+                'loadingText': '正在加载代码...',
+                'copyCodeText': '复制代码',
+                'copySuccessText': '代码已成功复制到剪贴板！',
+                'errorText': '加载文件时出错，请检查文件是否存在',
+                'projectTitle': '项目说明',
+                'projectText1': '<strong>•</strong> 代码用于Bloxd的命令方块和服务器代码里。<br><strong>•</strong> 如果你需要可以直接复制，大部分代码都是我写的（不过用了AI-Deepseek）。 :3<br><strong>•</strong> 我做这个网站的主要用途: 有些地方放不了太长的代码，所以就建了一个专门复制代码的工具。',
+                'projectText2': '制作这个网站用了Deepseek :P',
+                'langBtn': 'EN'
+            },
+            'en': {
+                'title': 'BLOXD Code Copier',
+                'description': 'A simple and easy-to-use tool that allows you to select files and copy with one click.',
+                'fileSelectLabel': 'Worlds Codes:',
+                'fileSelectLabel2': 'Command Blocks:',
+                'selectDefault': '-- Choose a code file --',
+                'selectDefault2': '-- No codes now--',
+                'file1': 'Auto Parkour 1',
+                'file2': 'Auto Parkour 2',
+                'file3': 'Other Code 1',
+                'file4': 'Other Code 2',
+                'viewCodeText': 'View Code',
+                'viewCodeText2': 'View Code',
+                'modalTitle': 'Code Content',
+                'loadingText': 'Loading code...',
+                'copyCodeText': 'Copy Code',
+                'copySuccessText': 'Code successfully copied to clipboard!',
+                'errorText': 'Error loading file, please check if the file exists',
+                'projectTitle': 'Project Description',
+                'projectText1': '<strong>•</strong> Codes are for Bloxd code block and worldcode.<br><strong>•</strong> Feel free to copy if needed, most codes are written by me (with AI-Deepseek help). :3<br><strong>•</strong> Main purpose of this website: Some platforms don\'t support long codes, so I created this dedicated code copying tool.',
+                'projectText2': 'This website was made with Deepseek :P',
+                'langBtn': '中文' 
+            }
+        };
+    
+        let currentLanguage = 'zh';
+    
+        // 等待页面完全加载后再执行
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+    
+        function initializeApp() {
+            // 获取所有DOM元素
+            const elements = {
+                langToggle: document.getElementById('langToggle'),
+                fileSelect: document.getElementById('fileSelect'),
+                fileSelect2: document.getElementById('fileSelect2'),
+                showCodeBtn: document.getElementById('showCodeBtn'),
+                showCodeBtn2: document.getElementById('showCodeBtn2'),
+                codeModal: document.getElementById('codeModal'),
+                closeModalBtn: document.getElementById('closeModalBtn'),
+                copyCodeBtn: document.getElementById('copyCodeBtn'),
+                codeDisplay: document.getElementById('codeDisplay'),
+                copyNotification: document.getElementById('copyNotification'),
+                errorNotification: document.getElementById('errorNotification'),
+                modalTitle: document.getElementById('modalTitle'),
+                projectTitle: document.getElementById('projectTitle'),
+                projectText1: document.getElementById('projectText1'),
+                projectText2: document.getElementById('projectText2'),
+                // 添加所有需要翻译的元素
+                title: document.getElementById('title'),
+                description: document.getElementById('description'),
+                fileSelectLabel: document.getElementById('fileSelectLabel'),
+                fileSelectLabel2: document.getElementById('fileSelectLabel2'),
+                selectDefault: document.getElementById('selectDefault'),
+                selectDefault2: document.getElementById('selectDefault2'),
+                file1: document.getElementById('file1'),
+                file2: document.getElementById('file2'),
+                file3: document.getElementById('file3'),
+                file4: document.getElementById('file4'),
+                viewCodeText: document.getElementById('viewCodeText'),
+                viewCodeText2: document.getElementById('viewCodeText2'),
+                loadingText: document.getElementById('loadingText'),
+                copyCodeText: document.getElementById('copyCodeText'),
+                copySuccessText: document.getElementById('copySuccessText'),
+                errorText: document.getElementById('errorText')
+            };
+    
+            let currentFileContent = "";
+    
+            // 初始化文本
+            updateTexts();
+    
+            // 切换语言函数
+            function switchLanguage() {
+                currentLanguage = currentLanguage === 'zh' ? 'en' : 'zh';
+                updateTexts();
+            }
+    
+            // 更新所有文本 - 简化版本
+            function updateTexts() {
+                const texts = translations[currentLanguage];
+                
+                // 使用更直接的方式更新所有文本
+                if (elements.title) elements.title.textContent = texts.title;
+                if (elements.description) elements.description.textContent = texts.description;
+                if (elements.fileSelectLabel) elements.fileSelectLabel.textContent = texts.fileSelectLabel;
+                if (elements.fileSelectLabel2) elements.fileSelectLabel2.textContent = texts.fileSelectLabel2;
+                if (elements.selectDefault) elements.selectDefault.textContent = texts.selectDefault;
+                if (elements.selectDefault2) elements.selectDefault2.textContent = texts.selectDefault2;
+                if (elements.file1) elements.file1.textContent = texts.file1;
+                if (elements.file2) elements.file2.textContent = texts.file2;
+                if (elements.file3) elements.file3.textContent = texts.file3;
+                if (elements.file4) elements.file4.textContent = texts.file4;
+                if (elements.viewCodeText) elements.viewCodeText.textContent = texts.viewCodeText;
+                if (elements.viewCodeText2) elements.viewCodeText2.textContent = texts.viewCodeText2;
+                if (elements.modalTitle) elements.modalTitle.textContent = texts.modalTitle;
+                if (elements.loadingText) elements.loadingText.textContent = texts.loadingText;
+                if (elements.copyCodeText) elements.copyCodeText.textContent = texts.copyCodeText;
+                if (elements.copySuccessText) elements.copySuccessText.textContent = texts.copySuccessText;
+                if (elements.errorText) elements.errorText.textContent = texts.errorText;
+                if (elements.projectTitle) elements.projectTitle.textContent = texts.projectTitle;
+                if (elements.projectText1) elements.projectText1.innerHTML = texts.projectText1;
+                if (elements.projectText2) elements.projectText2.textContent = texts.projectText2;
+                if (elements.langToggle) elements.langToggle.textContent = texts.langBtn;
+                
+                console.log('语言已切换到:', currentLanguage); // 调试用
+            }
+    
+            // 语言切换按钮事件
+            if (elements.langToggle) {
+                elements.langToggle.addEventListener('click', switchLanguage);
+            }
+            
+            // 文件选择变化 - 第一个下拉框
+            if (elements.fileSelect) {
+                elements.fileSelect.addEventListener('change', function() {
+                    if (elements.fileSelect.value) {
+                        elements.showCodeBtn.disabled = false;
+                        elements.showCodeBtn.style.background = "#3498db";
+                    } else {
+                        elements.showCodeBtn.disabled = true;
+                    }
+                });
+            }
+    
+            // 文件选择变化 - 第二个下拉框
+            if (elements.fileSelect2) {
+                elements.fileSelect2.addEventListener('change', function() {
+                    if (elements.fileSelect2.value) {
+                        elements.showCodeBtn2.disabled = false;
+                        elements.showCodeBtn2.style.background = "#3498db";
+                    } else {
+                        elements.showCodeBtn2.disabled = true;
+                    }
+                });
+            }
+            
+            // 显示模态框并加载文件 - 第一个按钮
+            if (elements.showCodeBtn) {
+                elements.showCodeBtn.addEventListener('click', async () => {
+                    const selectedFile = elements.fileSelect.value;
+                    if (!selectedFile) return;
+                    
+                    // 显示模态框和加载状态
+                    elements.codeModal.style.display = 'flex';
+                    elements.codeDisplay.innerHTML = `<div class="loading">${translations[currentLanguage].loadingText}</div>`;
+                    elements.modalTitle.textContent = `${translations[currentLanguage].modalTitle} - ${selectedFile}`;
+                    
+                    try {
+                        // 使用Fetch API加载TXT文件
+                        const response = await fetch(selectedFile);
+                        
+                        if (!response.ok) {
+                            throw new Error(`文件加载失败: ${response.status}`);
+                        }
+                        
+                        currentFileContent = await response.text();
+                        elements.codeDisplay.textContent = currentFileContent;
+                        
+                    } catch (error) {
+                        console.error('加载文件时出错:', error);
+                        elements.codeDisplay.innerHTML = `<div style="color: #e74c3c; text-align: center; padding: 20px;">
+                            <p>${translations[currentLanguage].errorText}</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">${error.message}</p>
+                            <p style="font-size: 0.8rem; margin-top: 10px;">请确保文件 "${selectedFile}" 存在于项目目录中</p>
+                        </div>`;
+                        
+                        // 显示错误通知
+                        elements.errorNotification.style.display = 'block';
+                        setTimeout(() => {
+                            elements.errorNotification.style.display = 'none';
+                        }, 5000);
+                    }
+                });
+            }
+    
+            // 显示模态框并加载文件 - 第二个按钮
+            if (elements.showCodeBtn2) {
+                elements.showCodeBtn2.addEventListener('click', async () => {
+                    const selectedFile = elements.fileSelect2.value;
+                    if (!selectedFile) return;
+                    
+                    // 显示模态框和加载状态
+                    elements.codeModal.style.display = 'flex';
+                    elements.codeDisplay.innerHTML = `<div class="loading">${translations[currentLanguage].loadingText}</div>`;
+                    elements.modalTitle.textContent = `${translations[currentLanguage].modalTitle} - ${selectedFile}`;
+                    
+                    try {
+                        // 使用Fetch API加载TXT文件
+                        const response = await fetch(selectedFile);
+                        
+                        if (!response.ok) {
+                            throw new Error(`文件加载失败: ${response.status}`);
+                        }
+                        
+                        currentFileContent = await response.text();
+                        elements.codeDisplay.textContent = currentFileContent;
+                        
+                    } catch (error) {
+                        console.error('加载文件时出错:', error);
+                        elements.codeDisplay.innerHTML = `<div style="color: #e74c3c; text-align: center; padding: 20px;">
+                            <p>${translations[currentLanguage].errorText}</p>
+                            <p style="font-size: 0.9rem; margin-top: 10px;">${error.message}</p>
+                            <p style="font-size: 0.8rem; margin-top: 10px;">请确保文件 "${selectedFile}" 存在于项目目录中</p>
+                        </div>`;
+                        
+                        // 显示错误通知
+                        elements.errorNotification.style.display = 'block';
+                        setTimeout(() => {
+                            elements.errorNotification.style.display = 'none';
+                        }, 5000);
+                    }
+                });
+            }
+            
+            // 关闭模态框
+            if (elements.closeModalBtn) {
+                elements.closeModalBtn.addEventListener('click', () => {
+                    elements.codeModal.style.display = 'none';
+                });
+            }
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', (event) => {
+                if (event.target === elements.codeModal) {
+                    elements.codeModal.style.display = 'none';
+                }
+            });
+            
+            // 复制代码功能
+            if (elements.copyCodeBtn) {
+                elements.copyCodeBtn.addEventListener('click', () => {
+                    if (!currentFileContent) return;
+                    
+                    // 创建临时文本区域
+                    const textArea = document.createElement('textarea');
+                    textArea.value = currentFileContent;
+                    document.body.appendChild(textArea);
+                    
+                    // 选择并复制文本
+                    textArea.select();
+                    document.execCommand('copy');
+                    
+                    // 移除临时文本区域
+                    document.body.removeChild(textArea);
+                    
+                    // 显示复制成功通知
+                    elements.copyNotification.style.display = 'block';
+                    
+                    // 3秒后隐藏通知
+                    setTimeout(() => {
+                        elements.copyNotification.style.display = 'none';
+                    }, 3000);
+                });
+            }
+            
+            // 添加一些交互效果
+            document.querySelectorAll('.btn').forEach(button => {
+                button.addEventListener('mousedown', () => {
+                    button.style.transform = 'scale(0.98)';
+                });
+                
+                button.addEventListener('mouseup', () => {
+                    button.style.transform = '';
+                });
+            });
+        }
+    </script>
+</body>
+</html>
